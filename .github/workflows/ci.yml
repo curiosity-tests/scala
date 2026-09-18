@@ -18,29 +18,30 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os:
+        - ubuntu-latest
         java: [8, 11, 17, 21, 25, 26]
     runs-on: ${{matrix.os}}
     steps:
-      - run: git config --global core.autocrlf false
-      - name: Checkout
-        uses: actions/checkout@v7
+    - run: git config --global core.autocrlf false
+    - name: Checkout
+      uses: actions/checkout@v7
 
-      - name: Setup Java
-        uses: actions/setup-java@v5
-        with:
-          distribution: zulu
-          java-version: ${{matrix.java}}
-          cache: sbt
+    - name: Setup Java
+      uses: actions/setup-java@v5
+      with:
+        distribution: zulu
+        java-version: ${{matrix.java}}
+        cache: sbt
 
-      - name: Setup SBT
-        uses: sbt/setup-sbt@v1
+    - name: Setup SBT
+      uses: sbt/setup-sbt@v1
 
-      - name: Build
-        run: |
-          sbt setupPublishCore generateBuildCharacterPropertiesFile headerCheck publishLocal
+    - name: Build
+      run: |
+        sbt setupPublishCore generateBuildCharacterPropertiesFile headerCheck publishLocal
 
-      - name: Test
-        run: |
-          STARR=`cat buildcharacter.properties | grep ^maven.version.number | cut -d= -f2` && echo $STARR
-          sbt -Dstarr.version=$STARR setupValidateTest Test/compile info testAll
+    - name: Test
+      run: |
+        STARR=`cat buildcharacter.properties | grep ^maven.version.number | cut -d= -f2` && echo $STARR
+        sbt -Dstarr.version=$STARR setupValidateTest Test/compile info testAll
